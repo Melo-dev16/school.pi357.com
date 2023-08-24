@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Formulaire Inscription Transport</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+	<link href="https://cdn.datatables.net/v/bs5/dt-1.13.6/datatables.min.css" rel="stylesheet">
+	<link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
+	<style>
+		.stat-card {
+			color: white;
+			height: 100px;
+			display: flex;
+			align-items: center;
+		}
+
+		.stat-card .stat-number {
+			font-size: 48px;
+			font-weight: bold;
+			width: 40%;
+			text-align: center;
+		}
+
+		.stat-card .stat-text {
+			font-size: 20px;
+			width: 60%;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="modal" id="staticBackdrop" tabindex="-1">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+				<form method="post">
+					<div class="modal-header">
+						<h5 class="modal-title">Formulaire d'inscription parent à PiSchool</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<div class="row">
+							<div class="col-md-6 mb-3">
+								<label for="lastname" class="form-label">Nom</label>
+								<input name="lastname" required type="text" class="form-control" id="lastname"
+									placeholder="Nom">
+							</div>
+							<div class="col-md-6 mb-3">
+								<label for="firstname" class="form-label">Prénoms</label>
+								<input name="firstname" required type="text" class="form-control" id="firstname"
+									placeholder="Prénoms">
+							</div>
+							<div class="col-md-6 mb-3">
+								<label for="contact" class="form-label">Numéro</label>
+								<input name="contact" required type="text" class="form-control" id="contact"
+									placeholder="Numéro">
+							</div>
+							<div class="col-md-6 mb-3">
+								<label for="whatsapp" class="form-label">Whatsapp</label>
+								<input name="whatsapp" type="text" class="form-control" id="whatsapp"
+									placeholder="Whatsapp">
+							</div>
+							<div class="col-md-6 mb-3">
+								<label for="email" class="form-label">Adresse Email</label>
+								<input type="email" name="email" class="form-control" id="email"
+									placeholder="Adresse Email">
+							</div>
+							<div class="col-md-6 mb-3">
+								<label for="childs" class="form-label">Nombre d'enfants</label>
+								<input value="1" min="1" onkeyup="calculate()" type="number" name="childs" required
+									class="form-control" id="childs" placeholder="Nombre d'enfants">
+							</div>
+							<div class="col-md-6 mb-3">
+								<label for="zone" class="form-label">Zone</label>
+								<select onchange="calculate()" name="zone" class="form-control" id="zone">
+									{% for z in zones %}
+									<option value="{{z.id}}-{{z.price}}">{{z.name}}</option>
+									{% endfor %}
+								</select>
+							</div>
+							<div class="col-md-6 mb-3">
+								<label for="address" class="form-label">Adresse ou point de référence</label>
+								<input type="text" name="address" required class="form-control" id="address"
+									placeholder="Adresse ou point de référence">
+							</div>
+							<div class="col-md-6 mb-3">
+								<label for="price" class="form-label">Coût total</label>
+								<input value="0" type="number" name="price" required class="form-control" id="price"
+									placeholder="Coût total" readonly>
+							</div>
+
+							<div class="col-md-6 mb-3">
+								<label for="amount" class="form-label">Montant Payé</label>
+								<input type="number" name="amount" class="form-control" id="amount"
+									placeholder="Montant Payé">
+							</div>
+
+							<div class="col-md-12 mb-3">
+								<p>Vous êtes d'accord pour ce devis ?</p>
+								<div class="form-check">
+									<input class="form-check-input" type="radio" name="approved" value="y"
+										id="yesApproved" checked>
+									<label class="form-check-label" for="yesApproved">
+										Oui
+									</label>
+								</div>
+								<div class="form-check">
+									<input class="form-check-input" type="radio" name="approved" value="n"
+										id="noApproved">
+									<label class="form-check-label" for="noApproved">
+										Non
+									</label>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-danger" data-bs-dismiss="modal">Annuler</button>
+						<button type="submit" class="btn btn-primary">Enregistrer</button>
+					</div>
+
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<div class="container justify-content-center">
+		<div class="row">
+			<div class="col-md-4 mt-3">
+				<div class="card">
+					<div class="card-body stat-card bg-danger">
+						<div class="stat-number">
+							{{stat1}}
+						</div>
+						<div class="stat-text">
+							Inscrits
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-4 mt-3">
+				<div class="card">
+					<div class="card-body stat-card bg-primary">
+						<div class="stat-number">
+							{{stat2}}
+						</div>
+						<div class="stat-text">
+							Payés
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-4 mt-3">
+				<div class="card">
+					<div class="card-body stat-card bg-success">
+						<div style="font-size: 25px;" class="stat-number">
+							{{stat3}}<br>XOF
+						</div>
+						<div class="stat-text">
+							Reçu
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-12 mt-3">
+				{% for message in app.flashes('success') %}
+				<div class="alert alert-success alert-dismissible fade show" role="alert">
+					{{message}}
+					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+				</div>
+				{% endfor %}
+				<button type="button" class="btn btn-primary mb-5" data-bs-toggle="modal"
+					data-bs-target="#staticBackdrop">
+					Ajouter
+				</button>
+				<table id="example" class="display" style="width:100%">
+					<thead>
+						<tr>
+							<th>Nom & Prénoms</th>
+							<th>Contact/Whatsapp</th>
+							<th>Adresse Email</th>
+							<th>Zone</th>
+							<th>Adresse</th>
+							<th>N° Enfants</th>
+							<th>Prix</th>
+							<th>Montant Payé</th>
+							<th>Approuvé</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for d in datas %}
+						<tr>
+							<td>{{ d.lastname }}
+								{{ d.firstname }}</td>
+							<td>{{ d.contact }}
+								/
+								{{ d.whatsapp != null ? d.whatsapp : 'Aucun' }}</td>
+							<td>{{ d.email }}</td>
+							<td>{{ d.zone.name }}</td>
+							<td>{{ d.address }}</td>
+							<td>{{ d.childs }}</td>
+							<td>{{ d.price }}</td>
+							<td>{{ d.amount != null ? d.amount : '-' }}</td>
+							<td>
+								{% if d.approved %}
+								<span class="text-success">Oui</span>
+								{% else %}
+								<span class="text-danger">Non</span>
+								{% endif %}
+							</td>
+							<td>
+								<button data-bs-toggle="modal" data-bs-target="#staticBackdropEdit{{d.id}}"
+									class="btn-primary btn mb-3">Modifier</button>
+								<a href="/delete/{{d.id}}" class="btn-danger btn mb-3"
+									onclick="return confirm('Souhaitez vous supprimer cette entrée ?')">Supprimer</a>
+							</td>
+						</tr>
+						<div class="modal" id="staticBackdropEdit{{d.id}}" tabindex="-1">
+							<div class="modal-dialog modal-xl">
+								<div class="modal-content">
+									<form action="/update/{{d.id}}" method="post">
+										<div class="modal-header">
+											<h5 class="modal-title">Modifier inscription</h5>
+											<button type="button" class="btn-close" data-bs-dismiss="modal"
+												aria-label="Close"></button>
+										</div>
+										<div class="modal-body">
+											<div class="row">
+												<div class="col-md-6 mb-3">
+													<label for="lastname{{d.id}}" class="form-label">Nom</label>
+													<input value="{{d.lastname}}" name="lastname" required type="text"
+														class="form-control" id="lastname{{d.id}}" placeholder="Nom">
+												</div>
+												<div class="col-md-6 mb-3">
+													<label for="firstname{{d.id}}" class="form-label">Prénoms</label>
+													<input value="{{d.firstname}}" name="firstname" required type="text"
+														class="form-control" id="firstname{{d.id}}"
+														placeholder="Prénoms">
+												</div>
+												<div class="col-md-6 mb-3">
+													<label for="contact{{d.id}}" class="form-label">Numéro</label>
+													<input value="{{d.contact}}" name="contact" required type="text"
+														class="form-control" id="contact{{d.id}}" placeholder="Numéro">
+												</div>
+												<div class="col-md-6 mb-3">
+													<label for="whatsapp{{d.id}}" class="form-label">Whatsapp</label>
+													<input value="{{d.whatsapp}}" name="whatsapp" type="text"
+														class="form-control" id="whatsapp{{d.id}}"
+														placeholder="Whatsapp">
+												</div>
+												<div class="col-md-6 mb-3">
+													<label for="email{{d.id}}" class="form-label">Adresse Email</label>
+													<input value="{{d.email}}" type="email" name="email"
+														class="form-control" id="email{{d.id}}"
+														placeholder="Adresse Email">
+												</div>
+												<div class="col-md-6 mb-3">
+													<label for="childs{{d.id}}" class="form-label">Nombre
+														d'enfants</label>
+													<input value="{{d.childs}}" value="1" min="1"
+														onchange="calculate({{d.id}})" type="text" name="childs"
+														required class="form-control" id="childs{{d.id}}"
+														placeholder="Nombre d'enfants">
+												</div>
+												<div class="col-md-6 mb-3">
+													<label for="zone{{d.id}}" class="form-label">Zone</label>
+													<select onchange="calculate({{d.id}})" name="zone"
+														class="form-control" id="zone{{d.id}}">
+														{% for z in zones %}
+														<option {% if z.id==d.zone.id %} selected {% endif %}
+															value="{{z.id}}-{{z.price}}">{{z.name}}</option>
+														{% endfor %}
+													</select>
+												</div>
+												<div class="col-md-6 mb-3">
+													<label for="address{{d.id}}" class="form-label">Adresse ou point de
+														référence</label>
+													<input value="{{d.address}}" type="text" name="address" required
+														class="form-control" id="address{{d.id}}"
+														placeholder="Adresse ou point de référence">
+												</div>
+												<div class="col-md-6 mb-3">
+													<label for="price{{d.id}}" class="form-label">Coût total</label>
+													<input value="{{d.price}}" type="number" name="price" required
+														class="form-control" id="price{{d.id}}" placeholder="Coût total"
+														readonly>
+												</div>
+												<div class="col-md-6 mb-3">
+													<label for="amount{{d.id}}" class="form-label">Montant Payé</label>
+													<input value="{{d.amount}}" type="number" name="amount" amount
+														class="form-control" id="amount{{d.id}}"
+														placeholder="Montant Payé">
+												</div>
+
+												<div class="col-md-12 mb-3">
+													<p>Vous êtes d'accord pour ce devis ?</p>
+													<div class="form-check">
+														<input {% if d.approved %} checked {% endif %}
+															class="form-check-input" type="radio" name="approved"
+															value="y" id="yesApproved{{d.id}}">
+														<label class="form-check-label" for="yesApproved{{d.id}}">
+															Oui
+														</label>
+													</div>
+													<div class="form-check">
+														<input {% if d.approved !=true %} checked {% endif %}
+															class="form-check-input" type="radio" name="approved"
+															value="n" id="noApproved{{d.id}}">
+														<label class="form-check-label" for="noApproved{{d.id}}">
+															Non
+														</label>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-danger"
+												data-bs-dismiss="modal">Annuler</button>
+											<button type="submit" class="btn btn-primary">Enregistrer</button>
+										</div>
+
+									</form>
+								</div>
+							</div>
+						</div>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<script src="https://code.jquery.com/jquery-3.7.0.min.js"
+		integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+		crossorigin="anonymous"></script>
+	<script src="https://cdn.datatables.net/v/dt/dt-1.13.6/datatables.min.js"></script>
+	<script>
+		new DataTable('#example');
+
+		function calculate(id = '') {
+			let zone = $('#zone' + id).val()
+			let childs = $('#childs' + id).val()
+
+			if (childs != '') {
+				let zonePrice = zone.split('-')[1]
+
+				let price = parseInt(zonePrice) * parseInt(childs)
+
+				console.log(price)
+				$('#price' + id).val(price)
+			} else {
+				$('#price' + id).val(0)
+			}
+		}
+	</script>
+</body>
+
+</html>
